@@ -21,10 +21,7 @@ import (
 
 const apiURL = "https://yesno.wtf/api"
 
-var (
-	accessToken = os.Getenv("TRAQ_BOT_ACCESS_TOKEN")
-	channelID   = os.Getenv("TRAQ_BOT_CHANNEL_ID")
-)
+var accessToken = os.Getenv("TRAQ_BOT_ACCESS_TOKEN")
 
 type APIRes struct {
 	Answer string
@@ -85,14 +82,14 @@ func main() {
 
 		file.Seek(0, io.SeekStart)
 
-		fid, err := postFile(channelID, file)
+		fid, err := postFile(p.Message.ChannelID, file)
 		if err != nil {
 			log.Println("ERROR: traqapi.PostFile:", err)
 			return
 		}
 
 		if _, _, err := bot.API().MessageApi.
-			PostMessage(context.Background(), channelID).
+			PostMessage(context.Background(), p.Message.ChannelID).
 			PostMessageRequest(traq.PostMessageRequest{
 				Content: fmt.Sprintf("%sやんね！\n\nhttps://q.trap.jp/files/%s", strings.Title(apiRes.Answer), fid),
 			}).
