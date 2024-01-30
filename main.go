@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"image/gif"
 	"io"
 	"log"
 	"mime/multipart"
@@ -61,28 +60,7 @@ func main() {
 			return
 		}
 
-		g, err := gif.DecodeAll(bytes.NewReader(body))
-		if err != nil {
-			log.Println("ERROR: gif.Decode:", err)
-			return
-		}
-
-		file, err := os.Create("yesno.gif")
-		if err != nil {
-			log.Println("ERROR: os.Create:", err)
-			return
-		}
-		defer file.Close()
-		defer os.Remove(file.Name())
-
-		if err := gif.EncodeAll(file, g); err != nil {
-			log.Println("ERROR: gif.Encode:", err)
-			return
-		}
-
-		file.Seek(0, io.SeekStart)
-
-		fid, err := postFile(p.Message.ChannelID, file)
+		fid, err := postFile(p.Message.ChannelID, bytes.NewReader(body))
 		if err != nil {
 			log.Println("ERROR: traqapi.PostFile:", err)
 			return
@@ -124,7 +102,7 @@ func getBody(url string) ([]byte, error) {
 	return body, nil
 }
 
-func postFile(channelID string, file *os.File) (string, error) {
+func postFile(channelID string, file io.Reader) (string, error) {
 	// NOTE: go-traqがcontent-typeをapplication/octet-streamにしてしまうので自前でAPIを叩く
 	// Ref: https://github.com/traPtitech/go-traq/blob/2c7a5f9aa48ef67a6bd6daf4018ca2dabbbbb2f3/client.go#L304
 	var b bytes.Buffer
@@ -132,7 +110,7 @@ func postFile(channelID string, file *os.File) (string, error) {
 
 	mh := make(textproto.MIMEHeader)
 	mh.Set("Content-Type", "image/gif")
-	mh.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, file.Name()))
+	mh.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, "image.gif"))
 
 	pw, err := mw.CreatePart(mh)
 	if err != nil {
