@@ -9,6 +9,6 @@ require (
 
 require (
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
 )
